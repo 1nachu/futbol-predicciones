@@ -293,8 +293,25 @@ def calcular_fuerzas(df):
         defensa_casa_final = (defensa_reciente * 0.6) + (defensa_casa_global * 0.4)
         ataque_fuera_final = (ataque_reciente * 0.6) + (ataque_fuera_global * 0.4)
         defensa_fuera_final = (defensa_reciente * 0.6) + (defensa_fuera_global * 0.4)
-        corners_casa = partidos_casa_global['HC'].mean() if 'HC' in df.columns and len(partidos_casa_global) > 0 else 0
-        corners_fuera = partidos_fuera_global['AC'].mean() if 'AC' in df.columns and len(partidos_fuera_global) > 0 else 0
+        # Cálculo de CÓRNERS (ponderado 75% reciente + 25% histórico)
+        corners_casa_global = partidos_casa_global['HC'].mean() if 'HC' in df.columns and len(partidos_casa_global) > 0 else 0
+        corners_fuera_global = partidos_fuera_global['AC'].mean() if 'AC' in df.columns and len(partidos_fuera_global) > 0 else 0
+        
+        if len(ultimos_5) > 0:
+            corners_casa_reciente = sum([p.get('Corners_Casa', 0) for p in ultimos_5 if 'Corners_Casa' in p]) / len(ultimos_5) if any('Corners_Casa' in p for p in ultimos_5) else corners_casa_global
+            corners_fuera_reciente = sum([p.get('Corners_Fuera', 0) for p in ultimos_5 if 'Corners_Fuera' in p]) / len(ultimos_5) if any('Corners_Fuera' in p for p in ultimos_5) else corners_fuera_global
+        else:
+            corners_casa_reciente = corners_casa_global
+            corners_fuera_reciente = corners_fuera_global
+        
+        # Ponderar: 75% reciente + 25% histórico (igual que goles)
+        corners_casa_ponderado = (corners_casa_reciente * 0.75) + (corners_casa_global * 0.25)
+        corners_fuera_ponderado = (corners_fuera_reciente * 0.75) + (corners_fuera_global * 0.25)
+        
+        corners_casa = corners_casa_ponderado
+        corners_fuera = corners_fuera_ponderado
+        corners_casa_contra = partidos_casa_global['AC'].mean() if 'AC' in df.columns and len(partidos_casa_global) > 0 else 0
+        corners_fuera_contra = partidos_fuera_global['HC'].mean() if 'HC' in df.columns and len(partidos_fuera_global) > 0 else 0
         tarjetas_am_casa = partidos_casa_global['HY'].mean() if 'HY' in df.columns and len(partidos_casa_global) > 0 else 0
         tarjetas_am_fuera = partidos_fuera_global['AY'].mean() if 'AY' in df.columns and len(partidos_fuera_global) > 0 else 0
         tarjetas_ro_casa = partidos_casa_global['HR'].mean() if 'HR' in df.columns and len(partidos_casa_global) > 0 else 0
@@ -314,6 +331,8 @@ def calcular_fuerzas(df):
             'Goles_Contra_Reciente': goles_contra_reciente,
             'Corners_Casa': corners_casa,
             'Corners_Fuera': corners_fuera,
+            'Corners_Casa_Contra': corners_casa_contra,
+            'Corners_Fuera_Contra': corners_fuera_contra,
             'Corners_Promedio': (corners_casa + corners_fuera) / 2,
             'Tarjetas_Am_Casa': tarjetas_am_casa,
             'Tarjetas_Am_Fuera': tarjetas_am_fuera,
@@ -408,6 +427,55 @@ def predecir_partido(local, visitante, fuerzas, media_liga_local, media_liga_vis
     prob_x2 = empate + victoria_visitante  # Empate o Visitante
     prob_12 = victoria_local + victoria_visitante  # Sin Empate (1 o 2)
     
+    # ========== MERCADOS DE CÓRNERS (Corners Expected) ==========
+    # Calculamos lambdas de córners para cada equipo
+    # Córners Local: promedio de córners que saca en casa
+    # Córners Visitante: promedio de córners que saca fuera
+    # Esperamos que córners siga una distribución de Poisson
+    
+    corners_lambda_local = fuerzas[local]['Corners_Casa']  # Córners que saca local en casa
+    corners_lambda_vis = fuerzas[visitante]['Corners_Fuera']  # Córners que saca visitante fuera
+    
+    # Ajuste por capacidad defensiva (defensa que recibe córners)
+    # Si la defensa es fuerte, menos córners pueden llegar a ella
+    # Aplicamos factor defensivo simple (no es predicción perfecta, pero ayuda)
+    corners_lambda_total = corners_lambda_local + corners_lambda_vis
+    
+    # Mercados Over/Under usando Poisson CDF
+    over_85 = 1 - poisson.cdf(8, corners_lambda_total)    # P(córners > 8.5) = P(córners >= 9)
+    over_95 = 1 - poisson.cdf(9, corners_lambda_total)    # P(córners > 9.5) = P(córners >= 10)
+    under_105 = poisson.cdf(10, corners_lambda_total)      # P(córners <= 10.5) = P(córners < 10.5)
+    
+    # ========== GANADOR DE CÓRNERS (1X2 Corners) ==========
+    # Comparar lambdas para estimar quién saca más córners
+    # Calculamos probabilidad de que local saque más, empate, o visitante saque más
+    # Simplificación: si lambda_local > lambda_vis, hay más probabilidad de que local saque más
+    
+    # Para una aproximación simple, usamos la razón de lambdas
+    if corners_lambda_local > 0 and corners_lambda_vis > 0:
+        ratio_corners = corners_lambda_local / corners_lambda_vis
+        # Si ratio > 1.2, local saca más córners con alta probabilidad
+        # Si ratio < 0.83, visitante saca más córners
+        # Si 0.83 <= ratio <= 1.2, es más probable un empate técnico
+        
+        if ratio_corners > 1.2:
+            prob_local_mas_corners = 0.65
+            prob_empate_corners = 0.25
+            prob_vis_mas_corners = 0.10
+        elif ratio_corners < 0.83:
+            prob_local_mas_corners = 0.10
+            prob_empate_corners = 0.25
+            prob_vis_mas_corners = 0.65
+        else:
+            prob_local_mas_corners = 0.35
+            prob_empate_corners = 0.40
+            prob_vis_mas_corners = 0.25
+    else:
+        # Si no hay datos de córners, asumimos equilibrio
+        prob_local_mas_corners = 0.33
+        prob_empate_corners = 0.34
+        prob_vis_mas_corners = 0.33
+    
     return {
         'Goles_Esp_Local': lambda_local,
         'Goles_Esp_Vis': lambda_visitante,
@@ -441,6 +509,14 @@ def predecir_partido(local, visitante, fuerzas, media_liga_local, media_liga_vis
         'Prob_1X': prob_1x,
         'Prob_X2': prob_x2,
         'Prob_12': prob_12,
+        # Mercados de córners
+        'Corners_Lambda_Total': corners_lambda_total,
+        'Over_85': over_85,
+        'Over_95': over_95,
+        'Under_105': under_105,
+        'Prob_Local_Mas_Corners': prob_local_mas_corners,
+        'Prob_Empate_Corners': prob_empate_corners,
+        'Prob_Vis_Mas_Corners': prob_vis_mas_corners,
     }
 
 

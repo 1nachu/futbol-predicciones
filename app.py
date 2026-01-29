@@ -56,10 +56,11 @@ def mostrar_recomendaciones_semaforo(prediccion, umbral_alto=0.70, umbral_medio=
     st.subheader("💡 SUGERENCIAS DEL ALGORITMO")
     
     recomendaciones = []
+    tiene_datos_corners = prediccion.get('Corners_Lambda_Total', 0) > 0
     
     # Doble Oportunidad
     if prediccion['Prob_1X'] >= umbral_alto:
-        recomendaciones.append(("🔥", f"Doble Oportunidad: {prediccion.get('Goles_Esp_Local', 0) and '1X' or 'Local o Empate'}", f"{prediccion['Prob_1X']*100:.1f}%"))
+        recomendaciones.append(("🔥", f"Doble Oportunidad: Local o Empate", f"{prediccion['Prob_1X']*100:.1f}%"))
     elif prediccion['Prob_1X'] >= umbral_medio:
         recomendaciones.append(("⚠️", f"Doble Oportunidad: Local o Empate", f"{prediccion['Prob_1X']*100:.1f}%"))
     
@@ -75,28 +76,58 @@ def mostrar_recomendaciones_semaforo(prediccion, umbral_alto=0.70, umbral_medio=
     
     # Mercados de goles
     if prediccion['Over_15'] >= umbral_alto:
-        recomendaciones.append(("⚽", f"Goles: +1.5 Goles (Prob: {prediccion['Over_15']*100:.1f}%)", ""))
+        recomendaciones.append(("⚽", f"Goles: +1.5 Goles", f"{prediccion['Over_15']*100:.1f}%"))
     elif prediccion['Over_15'] >= umbral_medio:
-        recomendaciones.append(("⚽", f"Goles: +1.5 Goles (Prob: {prediccion['Over_15']*100:.1f}%)", ""))
+        recomendaciones.append(("⚽", f"Goles: +1.5 Goles", f"{prediccion['Over_15']*100:.1f}%"))
     
     if prediccion['Over_25'] >= umbral_alto:
-        recomendaciones.append(("⚽", f"Goles: +2.5 Goles (Prob: {prediccion['Over_25']*100:.1f}%)", ""))
+        recomendaciones.append(("⚽", f"Goles: +2.5 Goles", f"{prediccion['Over_25']*100:.1f}%"))
     elif prediccion['Over_25'] >= umbral_medio:
-        recomendaciones.append(("⚽", f"Goles: +2.5 Goles (Prob: {prediccion['Over_25']*100:.1f}%)", ""))
+        recomendaciones.append(("⚽", f"Goles: +2.5 Goles", f"{prediccion['Over_25']*100:.1f}%"))
     
     if prediccion['Under_35'] >= umbral_alto:
-        recomendaciones.append(("🛡️", f"Seguridad: -3.5 Goles (Prob: {prediccion['Under_35']*100:.1f}%)", ""))
+        recomendaciones.append(("🛡️", f"Seguridad: -3.5 Goles", f"{prediccion['Under_35']*100:.1f}%"))
     elif prediccion['Under_35'] >= umbral_medio:
-        recomendaciones.append(("🛡️", f"Seguridad: -3.5 Goles (Prob: {prediccion['Under_35']*100:.1f}%)", ""))
+        recomendaciones.append(("🛡️", f"Seguridad: -3.5 Goles", f"{prediccion['Under_35']*100:.1f}%"))
+    
+    # Mercados de córners (solo si hay datos disponibles)
+    if tiene_datos_corners:
+        if prediccion.get('Over_85', 0) >= umbral_alto:
+            recomendaciones.append(("🚩", f"Córners: +8.5 Córners", f"{prediccion['Over_85']*100:.1f}%"))
+        elif prediccion.get('Over_85', 0) >= umbral_medio:
+            recomendaciones.append(("🚩", f"Córners: +8.5 Córners", f"{prediccion['Over_85']*100:.1f}%"))
+        
+        if prediccion.get('Over_95', 0) >= umbral_alto:
+            recomendaciones.append(("🚩", f"Córners: +9.5 Córners", f"{prediccion['Over_95']*100:.1f}%"))
+        elif prediccion.get('Over_95', 0) >= umbral_medio:
+            recomendaciones.append(("🚩", f"Córners: +9.5 Córners", f"{prediccion['Over_95']*100:.1f}%"))
+        
+        if prediccion.get('Under_105', 0) >= umbral_alto:
+            recomendaciones.append(("🛡️", f"Seguridad: -10.5 Córners", f"{prediccion['Under_105']*100:.1f}%"))
+        elif prediccion.get('Under_105', 0) >= umbral_medio:
+            recomendaciones.append(("🛡️", f"Seguridad: -10.5 Córners", f"{prediccion['Under_105']*100:.1f}%"))
+        
+        # Ganador de córners
+        if prediccion.get('Prob_Local_Mas_Corners', 0) >= umbral_alto:
+            recomendaciones.append(("🚩", f"Ganador Córners: Local saca más", f"{prediccion['Prob_Local_Mas_Corners']*100:.1f}%"))
+        elif prediccion.get('Prob_Local_Mas_Corners', 0) >= umbral_medio:
+            recomendaciones.append(("🚩", f"Ganador Córners: Local saca más", f"{prediccion['Prob_Local_Mas_Corners']*100:.1f}%"))
+        
+        if prediccion.get('Prob_Vis_Mas_Corners', 0) >= umbral_alto:
+            recomendaciones.append(("🚩", f"Ganador Córners: Visitante saca más", f"{prediccion['Prob_Vis_Mas_Corners']*100:.1f}%"))
+        elif prediccion.get('Prob_Vis_Mas_Corners', 0) >= umbral_medio:
+            recomendaciones.append(("🚩", f"Ganador Córners: Visitante saca más", f"{prediccion['Prob_Vis_Mas_Corners']*100:.1f}%"))
     
     if recomendaciones:
         for emoji, texto, extra in recomendaciones:
             if emoji == "🔥":
-                st.success(f"{emoji} {texto} {extra}")
+                st.success(f"{emoji} {texto} ({extra})")
             elif emoji == "⚠️":
-                st.warning(f"{emoji} {texto} {extra}")
+                st.warning(f"{emoji} {texto} ({extra})")
+            elif emoji == "🚩":
+                st.info(f"{emoji} {texto} ({extra})")
             else:
-                st.info(f"{emoji} {texto} {extra}")
+                st.info(f"{emoji} {texto} ({extra})")
     else:
         st.info("📌 No hay recomendaciones claras. Analiza los datos detallados abajo.")
 

@@ -28,6 +28,7 @@ def descargar_csv(url_or_list):
 def mostrar_recomendaciones_semaforo_cli(prediccion, umbral_alto=0.70, umbral_medio=0.55):
     """Muestra recomendaciones en consola con umbrales de confianza."""
     recomendaciones = []
+    tiene_datos_corners = prediccion.get('Corners_Lambda_Total', 0) > 0
     
     # Doble Oportunidad
     if prediccion['Prob_1X'] >= umbral_alto:
@@ -60,6 +61,34 @@ def mostrar_recomendaciones_semaforo_cli(prediccion, umbral_alto=0.70, umbral_me
         recomendaciones.append(f"🛡️  SEGURIDAD -3.5: {prediccion['Under_35']*100:.1f}%")
     elif prediccion['Under_35'] >= umbral_medio:
         recomendaciones.append(f"🛡️  SEGURIDAD -3.5: {prediccion['Under_35']*100:.1f}%")
+    
+    # Mercados de córners (solo si hay datos disponibles)
+    if tiene_datos_corners:
+        if prediccion.get('Over_85', 0) >= umbral_alto:
+            recomendaciones.append(f"🚩 CÓRNERS +8.5: {prediccion['Over_85']*100:.1f}%")
+        elif prediccion.get('Over_85', 0) >= umbral_medio:
+            recomendaciones.append(f"🚩 CÓRNERS +8.5: {prediccion['Over_85']*100:.1f}%")
+        
+        if prediccion.get('Over_95', 0) >= umbral_alto:
+            recomendaciones.append(f"🚩 CÓRNERS +9.5: {prediccion['Over_95']*100:.1f}%")
+        elif prediccion.get('Over_95', 0) >= umbral_medio:
+            recomendaciones.append(f"🚩 CÓRNERS +9.5: {prediccion['Over_95']*100:.1f}%")
+        
+        if prediccion.get('Under_105', 0) >= umbral_alto:
+            recomendaciones.append(f"🛡️  SEGURIDAD -10.5 CÓRNERS: {prediccion['Under_105']*100:.1f}%")
+        elif prediccion.get('Under_105', 0) >= umbral_medio:
+            recomendaciones.append(f"🛡️  SEGURIDAD -10.5 CÓRNERS: {prediccion['Under_105']*100:.1f}%")
+        
+        # Ganador de córners
+        if prediccion.get('Prob_Local_Mas_Corners', 0) >= umbral_alto:
+            recomendaciones.append(f"🚩 GANADOR CÓRNERS: LOCAL {prediccion['Prob_Local_Mas_Corners']*100:.1f}%")
+        elif prediccion.get('Prob_Local_Mas_Corners', 0) >= umbral_medio:
+            recomendaciones.append(f"🚩 GANADOR CÓRNERS: LOCAL {prediccion['Prob_Local_Mas_Corners']*100:.1f}%")
+        
+        if prediccion.get('Prob_Vis_Mas_Corners', 0) >= umbral_alto:
+            recomendaciones.append(f"🚩 GANADOR CÓRNERS: VISITANTE {prediccion['Prob_Vis_Mas_Corners']*100:.1f}%")
+        elif prediccion.get('Prob_Vis_Mas_Corners', 0) >= umbral_medio:
+            recomendaciones.append(f"🚩 GANADOR CÓRNERS: VISITANTE {prediccion['Prob_Vis_Mas_Corners']*100:.1f}%")
     
     if recomendaciones:
         print("\n💡 SUGERENCIAS DEL ALGORITMO:")
