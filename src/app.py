@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+
 import streamlit as st
 import pandas as pd
 import io
@@ -8,9 +12,6 @@ from difflib import get_close_matches
 from datetime import datetime, timedelta
 import json
 from timba_core import LIGAS, URLS_FIXTURE, normalizar_csv, calcular_fuerzas, predecir_partido, obtener_h2h, obtener_proximos_partidos, emparejar_equipo, encontrar_equipo_similar, descargar_csv_safe
-import sys
-import os
-sys.path.insert(0, os.path.dirname(__file__))
 
 # ========== CONFIGURACIÓN INICIAL ==========
 st.set_page_config(
@@ -226,12 +227,15 @@ def main():
                     
                     # ========== RECOLECCIÓN DE DATOS PARA EXPORTACIÓN ==========
                     datos_para_excel = []
+                    fecha_primer_partido = None
                     
                     # Procesar cada partido
                     for idx, partido in enumerate(partidos, 1):
                         local = partido['local']
                         visitante = partido['visitante']
                         fecha = partido['fecha']
+                        if fecha_primer_partido is None:
+                            fecha_primer_partido = fecha
                         
                         # Emparejar nombres
                         # Emparejar nombres (si no hay datos, solo mostrar fixture)
@@ -316,8 +320,8 @@ def main():
                         # Botón de descarga
                         st.download_button(
                             label='📥 Descargar Reporte en Excel',
-                            data=buffer,
-                            file_name=f'Predicciones_Futbol_{fecha.strftime("%Y%m%d")}.xlsx',
+                            data=buffer.getvalue(),
+                            file_name=f'Predicciones_Futbol_{fecha_primer_partido.strftime("%Y%m%d")}.xlsx',
                             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             use_container_width=True
                         )
