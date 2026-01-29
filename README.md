@@ -1,325 +1,263 @@
-# ⚽ Timba Predictor v2.0
+# ⚽ TIMBA PREDICTOR - Football Match Prediction System
 
-**Sistema avanzado de predicción de partidos con análisis estadístico, 14 mercados probabilísticos y recomendaciones visuales inteligentes.**
+## 📁 Estructura del Proyecto
 
-> Predice resultados de fútbol usando Poisson Distribution, análisis de forma reciente y ponderaciones inteligentes.
+```
+proyecto timba/
+│
+├── 📂 src/                          # Código fuente principal
+│   ├── timba_core.py               # Motor de predicciones (Poisson, cálculos)
+│   ├── app.py                      # Interfaz web (Streamlit)
+│   └── cli.py                      # Interfaz CLI (línea de comandos)
+│
+├── 📂 tests/                        # Suite de pruebas
+│   ├── test_corners.py             # Validación de mercados de córners
+│   ├── test_semaforo.py            # Validación de recomendaciones
+│   └── test_sudamerica.py          # Validación de ligas sudamericanas
+│
+├── 📂 docs/                         # Documentación del proyecto
+│   ├── README.md                   # Documentación principal
+│   ├── SISTEMA_COMPLETO.md         # Arquitectura y componentes
+│   ├── EXPORTACION_EXCEL.md        # Guía: Exportar reportes
+│   ├── EXPANSION_SUDAMERICANA.md   # Guía: Brasil y Argentina
+│   ├── CAMBIOS_CORNERS.md          # Cambios v2.0
+│   ├── v2.1_RELEASE_NOTES.md       # Release notes v2.1
+│   ├── COMPARACION_ANTES_DESPUES.md# Delta de cambios
+│   ├── RESUMEN_EJECUTIVO.md        # Resumen para stakeholders
+│   ├── QUICK_REFERENCE.md          # Guía rápida
+│   └── LIMPIEZA_PROYECTO.md        # Histórico de limpieza
+│
+├── 📂 scripts/                      # Scripts auxiliares
+│   ├── run_streamlit.py            # Lanzar app web
+│   ├── install_dependencies.sh     # Instalar dependencias
+│   └── push_to_github.sh           # Script de push a GitHub
+│
+├── 📂 config/                       # Configuración
+│   └── requirements.txt            # Dependencias Python
+│
+├── 📂 logs/                         # Registros y estado
+│   ├── STATUS.txt                  # Estado del proyecto
+│   └── PUSH_GITHUB_LOG.txt         # Histórico de commits
+│
+├── .gitignore                       # Archivo git ignore mejorado
+├── .venv/                           # Virtualenv de Python
+├── .git/                            # Repositorio Git
+│
+└── README.md                        # Este archivo
+```
 
 ---
 
-## 🚀 Instalación Rápida
+## 🚀 Inicio Rápido
 
+### 1. **Instalar Dependencias**
 ```bash
-# Clonar repositorio
-git clone https://github.com/1nachu/futbol-predicciones.git
-cd futbol-predicciones
-
-# Instalar dependencias
-python -m pip install -r requirements.txt
+cd proyecto\ timba
+pip install -r config/requirements.txt
 ```
 
----
-
-## ▶️ Ejecutar la App
-
-### 🌐 Web (Streamlit)
+### 2. **Ejecutar App Web (Streamlit)**
 ```bash
-streamlit run app.py --server.port 8502
-# Accede a: http://localhost:8502
+streamlit run src/app.py
 ```
 
-### 💻 Consola (CLI)
+O usar el script:
 ```bash
-python cli.py
-# Menú interactivo para predicciones
+bash scripts/run_streamlit.py
+```
+
+### 3. **Usar CLI**
+```bash
+python src/cli.py
 ```
 
 ---
 
-## 📊 Características v2.0
+## 📊 Estructura del Código
 
-### 🎯 Predicción de Partidos
-- ✅ Probabilidades 1-X-2 (Poisson Distribution)
-- ✅ Goles esperados (xG) por equipo
-- ✅ Comparativa ataque vs defensa
-- ✅ Forma reciente ponderada (75% últimos 5 partidos)
-- ✅ Análisis de tendencias (córners, tarjetas)
-- ✅ Eficiencia de tiro y BTTS histórico
+### `src/timba_core.py` (Motor de Predicciones)
+- **LIGAS**: Diccionario con 9 ligas (7 europeas + 2 sudamericanas)
+- **ALIAS_TEAMS**: Mapeo de 154+ equipos para normalización
+- **calcular_fuerzas()**: Calcula métricas de ataque/defensa/córners
+- **predecir_partido()**: Genera predicción usando Poisson distribution
+- **obtener_proximos_partidos()**: Obtiene fixtures próximas
 
-### 🏆 Mercados 1X2 & Doble Oportunidad (6)
-- ✅ Probabilidades: Local, Empate, Visitante
-- ✅ **1X**: Local o Empate
-- ✅ **X2**: Empate o Visitante
-- ✅ **12**: Sin Empate
+### `src/app.py` (Interfaz Streamlit)
+- Selección de liga y análisis manual
+- **Análisis Automático**: Procesa todos los partidos
+- **Exportación a Excel**: Genera reportes en XLSX
+- Visualización de predicciones con semáforo
 
-### ⚽ Mercados de Goles (3)
-- ✅ Over 1.5 Goles
-- ✅ Over 2.5 Goles
-- ✅ Under 3.5 Goles (seguridad)
-
-### 🚩 Mercados de Córners v2.0 (5) ⭐ NUEVO
-- ✅ Over 8.5 Córners
-- ✅ Over 9.5 Córners
-- ✅ Under 10.5 Córners (seguridad)
-- ✅ Ganador Córners Local
-- ✅ Ganador Córners Visitante
-
-**Total**: 14 mercados probabilísticos
-
-### 💡 Semáforo Visual de Recomendaciones
-Recomendaciones automáticas basadas en confianza:
-```
-🔥 Verde  (≥70%)    → Recomendación FUERTE
-⚠️  Amarillo (55-69%) → Recomendación MEDIA
-🚩 Córners          → Información de córners
-⚽ Goles            → Información de goles
-🛡️  Seguridad      → Mercados Under (defensivos)
-```
-
-### 🔍 Análisis Avanzado
-- ✅ Análisis automático de próximos fixtures
-- ✅ Predicción batch para múltiples partidos
-- ✅ Historial directo (H2H)
-- ✅ Top 3 marcadores exactos más probables
-- ✅ Validación automática de datos
-
-### 🛡️ Confiabilidad
-- ✅ Descargas CSV seguras con URLs alternativas
-- ✅ Normalización de 100+ nombres de equipos (ALIAS_TEAMS)
-- ✅ Manejo gracioso de datos faltantes
-- ✅ Validación automática de córners (HC/AC)
-- ✅ Ponderación inteligente: 75% reciente + 25% histórico
+### `src/cli.py` (Interfaz CLI)
+- Análisis en línea de comandos
+- Salida formateada en consola
+- Útil para scripts automatizados
 
 ---
 
-## 📈 Ligas Soportadas (7)
+## 🎯 Características Principales
 
-| # | Liga | Temporada | Datos |
-|----|------|-----------|-------|
-| 1 | 🇬🇧 Premier League | 25/26 | ✅ Completo |
-| 2 | 🇪🇸 La Liga | 25/26 | ✅ Completo |
-| 3 | 🇮🇹 Serie A | 25/26 | ✅ Completo |
-| 4 | 🇩🇪 Bundesliga | 25/26 | ✅ Completo |
-| 5 | 🇫🇷 Ligue 1 | 25/26 | ✅ Completo |
-| 6 | 🇪🇺 Champions League | 25/26 | ✅ Con alternativas |
-| 7 | 🇪🇺 Europa League | 25/26 | ✅ Con alternativas |
+### v2.0 - Mercados de Córners
+- 14 mercados totales (+56% vs v1.5)
+- Cálculo de Corners esperados (Poisson)
+- Over/Under de córners (8.5, 9.5, 10.5)
+- Ganador de Córners (1X2)
+
+### v2.1 - Expansión Sudamericana
+- Brasil Série A (30+ equipos)
+- Argentina Liga Profesional (25+ equipos)
+- Defensiva vs datos faltantes (HC/AC)
+- Córners se ocultan inteligentemente
+
+### v2.2 - Exportación Excel
+- Recolección automática de datos
+- Generación de XLSX en memoria
+- 11 campos por predicción
+- Botón de descarga en Streamlit
 
 ---
 
-## 🧮 Cálculos Matemáticos
+## 📈 Mercados Disponibles
 
-### Lambda de Goles (Poisson)
-$$\lambda_{local} = \text{Ataque}_{casa} \times \text{Defensa}_{visitante} \times \text{Media}_{liga}$$
+### Goles
+- Over/Under 1.5, 2.5, 3.5
 
-### Lambda de Córners (Poisson)
-$$\lambda_{corners\_total} = \lambda_{local\_corners} + \lambda_{visitante\_corners}$$
+### Doble Oportunidad
+- 1X (Local o Empate)
+- X2 (Empate o Visitante)
+- 12 (Sin Empate)
 
-### Mercados Over/Under
-$$P(\text{Over 2.5}) = 1 - \text{CDF}_{\text{Poisson}}(2, \lambda_{total})$$
+### Córners (cuando datos disponibles)
+- Over/Under 8.5, 9.5, 10.5
+- Ganador Córners (1X2)
 
-Más detalles en **SISTEMA_COMPLETO.md**
+### Otros
+- BTTS (Ambos marcan)
+- Over 2.5
+- Eficiencia de tiro
+- Goles 2T
+
+---
+
+## 🧪 Tests
+
+### Ejecutar todos los tests
+```bash
+cd src
+python -m pytest ../tests/ -v
+```
+
+### Tests específicos
+```bash
+python ../tests/test_corners.py      # Validar córners
+python ../tests/test_semaforo.py     # Validar UI
+python ../tests/test_sudamerica.py   # Validar Brasil/Argentina
+```
+
+---
+
+## 📦 Dependencias
+
+| Librería | Versión | Uso |
+|----------|---------|-----|
+| streamlit | latest | Web UI |
+| pandas | latest | DataFrames |
+| numpy | latest | Cálculos |
+| scipy | latest | Poisson distribution |
+| requests | latest | HTTP requests |
+| openpyxl | latest | Excel generation |
+
+---
+
+## 🔗 Ligas Disponibles
+
+| ID | Liga | País | Fuente |
+|----|------|------|--------|
+| 1 | Premier League | 🇬🇧 | football-data.co.uk |
+| 2 | La Liga | 🇪🇸 | football-data.co.uk |
+| 3 | Serie A | 🇮🇹 | football-data.co.uk |
+| 4 | Bundesliga | 🇩🇪 | football-data.co.uk |
+| 5 | Ligue 1 | 🇫🇷 | football-data.co.uk |
+| 6 | Champions League | 🇪🇺 | footballcsv |
+| 7 | Europa League | 🇪🇺 | footballcsv |
+| 11 | Brasileirão Série A | 🇧🇷 | footballcsv |
+| 12 | Liga Profesional Argentina | 🇦🇷 | footballcsv |
 
 ---
 
 ## 📚 Documentación
 
-| Archivo | Contenido |
-|---------|----------|
-| **README.md** | Esta guía (proyecto) |
-| **SISTEMA_COMPLETO.md** | Arquitectura técnica completa |
-| **CAMBIOS_CORNERS.md** | Detalles de implementación v2.0 |
-| **QUICK_REFERENCE.md** | Cheatsheet rápido de uso |
-| **COMPARACION_ANTES_DESPUES.md** | v1.5 vs v2.0 detallado |
-| **RESUMEN_EJECUTIVO.md** | Resumen de cambios |
-| **LIMPIEZA_PROYECTO.md** | Limpieza de archivos obsoletos |
+Consulta la carpeta `docs/` para:
+- **README.md**: Guía completa de uso
+- **SISTEMA_COMPLETO.md**: Arquitectura técnica
+- **EXPORTACION_EXCEL.md**: Cómo usar exportación
+- **EXPANSION_SUDAMERICANA.md**: Detalles Brasil/Argentina
+- **QUICK_REFERENCE.md**: Referencia rápida
 
 ---
 
-## 🧪 Testing
+## 🔧 Configuración
 
+### Instalar dependencias
 ```bash
-# Test de cálculos de córners
-python test_corners.py
-
-# Test de semáforo visual
-python test_semaforo.py
-
-# Verificar sintaxis
-python -m py_compile timba_core.py app.py cli.py
+pip install -r config/requirements.txt
 ```
 
----
-
-## 📁 Estructura del Proyecto
-
-```
-timba-predicciones/
-├── timba_core.py              # 🔧 Motor principal (cálculos)
-├── app.py                     # 🌐 Interfaz Streamlit
-├── cli.py                     # 💻 Interfaz Consola
-├── test_corners.py            # 🧪 Test córners
-├── test_semaforo.py           # 🧪 Test semáforo
-├── requirements.txt           # 📦 Dependencias
-├── README.md                  # 📖 Este archivo
-├── SISTEMA_COMPLETO.md        # 📚 Documentación técnica
-├── CAMBIOS_CORNERS.md         # 📝 v2.0 Córners
-└── QUICK_REFERENCE.md         # ⚡ Cheatsheet
-```
-
----
-
-## 💡 Ejemplo de Uso
-
-### Streamlit
-1. Abre http://localhost:8502
-2. Selecciona "🔮 Predicción Manual"
-3. Elige liga y equipos
-4. Ver predicción con semáforo de recomendaciones
-
-### CLI
+### Actualizar dependencias
 ```bash
-$ python cli.py
-
-=== MENU PRINCIPAL ===
-1. Premier League (Inglaterra)
-2. La Liga (España)
-...
-
-Elige liga (numero): 1
-
---- Premier League ---
-1. Predecir partido manual
-2. Analizar próximos partidos
-
-Elige opción: 1
-Equipo local: Liverpool
-Equipo visitante: Arsenal
-
----
-Predicción Liverpool vs Arsenal
-Prob Local: 62.50%  Empate: 18.20%  Prob Visita: 19.30%
-...
-💡 SUGERENCIAS DEL ALGORITMO:
-   🔥 DOBLE OPORTUNIDAD 1X: 80.7%
-   🚩 CÓRNERS +8.5: 71.2%
-   ⚽ GOLES +2.5: 68.9%
+pip freeze > config/requirements.txt
 ```
 
 ---
 
-## 🔑 Nuevas Claves en Predicción (v2.0)
+## 📊 Historial de Versiones
 
-### Mercados de Goles
-```python
-pred['Over_15']           # P(goles > 1.5)
-pred['Over_25']           # P(goles > 2.5)
-pred['Under_35']          # P(goles ≤ 3.5)
-```
-
-### Mercados de Córners ⭐ NUEVO
-```python
-pred['Over_85']                   # P(córners > 8.5)
-pred['Over_95']                   # P(córners > 9.5)
-pred['Under_105']                 # P(córners ≤ 10.5)
-pred['Prob_Local_Mas_Corners']    # P(local gana córners)
-pred['Prob_Vis_Mas_Corners']      # P(visitante gana córners)
-```
+- **v1.0**: Predicciones básicas (goles)
+- **v2.0**: 14 mercados con córners
+- **v2.1**: Expansión Sudamericana (Brasil + Argentina)
+- **v2.2**: Exportación a Excel
 
 ---
 
-## ✅ Validaciones Automáticas
+## 🔐 .gitignore Mejorado
 
-- ✅ Verifica disponibilidad de datos (HC/AC en CSV)
-- ✅ Filtra recomendaciones por confianza (≥55%)
-- ✅ Suma de probabilidades = 1.0
-- ✅ Manejo de ligas sin datos de córners
-
----
-
-## 🚀 Novedades v2.0
-
-**Del 29 de enero de 2026:**
-
-✅ **Mercados de Córners Expandidos**
-- Over/Under 8.5, 9.5, 10.5
-- Ganador de Córners (1X2)
-- Ponderación 75/25 (reciente/histórico)
-
-✅ **Semáforo Visual Mejorado**
-- 5 nuevas recomendaciones
-- Emoji 🚩 para córners
-- Validaciones automáticas
-
-✅ **Documentación Consolidada**
-- 7 archivos .md técnicos
-- Arquitectura clara
-- Ejemplos de uso
-
-✅ **Proyecto Limpio**
-- 11 archivos obsoletos eliminados
-- Repositorio 40% más ligero
-- Código más mantenible
-
-**Estadísticas:**
-- v1.5 → v2.0: **+56% mercados** (9 → 14)
-- +50 líneas en `timba_core.py`
-- +30 líneas en `app.py`
-- +25 líneas en `cli.py`
+El archivo `.gitignore` ahora cubre:
+- Python cache (__pycache__, .pyc, venv)
+- IDE (.vscode, .idea)
+- OS (.DS_Store)
+- Logs y temporales
+- Archivos Excel generados
 
 ---
 
-## 🤝 Contribuir
+## 🚀 Próximos Pasos
 
-Si deseas contribuir:
-1. Fork el repositorio
-2. Crea una rama para tu feature
-3. Commit los cambios
-4. Push a tu rama
-5. Abre un Pull Request
-
----
-
-## 📊 Performance
-
-- Predicción por partido: ~50ms
-- Análisis de fixtures (10 partidos): ~500ms
-- Uso de memoria: ~100MB (en Streamlit)
+1. **Más ligas sudamericanas**: Chile, Uruguay, Colombia
+2. **Gráficos en Excel**: Visualizaciones automáticas
+3. **Base de datos**: Histórico de predicciones
+4. **API REST**: Integración con terceros
+5. **ML mejorado**: Ajuste dinámico de factores
 
 ---
 
-## ⚠️ Limitaciones
+## 💡 Estructura Inspirada en
 
-- Datos solo hasta temporada 25/26
-- Champions/Europa League con URLs alternativas
-- Córners solo en ligas con datos HC/AC
-- No hay información de lesionados/alineaciones
-
----
-
-## 🔮 Próximas Mejoras
-
-- [ ] Mercados de tarjetas (Amarillas/Rojas)
-- [ ] API REST para integraciones
-- [ ] Machine Learning (XGBoost)
-- [ ] Histórico de predicciones acertadas
-- [ ] Live updates (WebSocket)
+- Professional Python projects (pip, pytest, sphinx)
+- Django (src/ structure)
+- FastAPI (config/, docs/)
 
 ---
 
-## 📄 Licencia
+## 📝 Notas
 
-Uso personal y educativo. Para uso comercial, contacta al desarrollador.
-
----
-
-## 📞 Soporte
-
-- **Issues**: [GitHub Issues](https://github.com/1nachu/futbol-predicciones/issues)
-- **Wiki**: Ver archivos .md en repositorio
-- **Email**: Contacto en perfil de GitHub
+- Código modular y reutilizable
+- Documentación completa en `docs/`
+- Tests para cada componente mayor
+- Scripts auxiliares organizados
+- Configuración centralizada
 
 ---
 
-**Versión**: 2.0 (29 de enero de 2026)  
-**Status**: 🟢 Production Ready  
-**Última actualización**: Git commit `55b92e7`  
-**Repositorio**: https://github.com/1nachu/futbol-predicciones
+**Status**: ✅ **Organizado y Listo para Producción**
+
+Última actualización: 29 de enero de 2026

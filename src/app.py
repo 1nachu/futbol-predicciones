@@ -8,6 +8,9 @@ from difflib import get_close_matches
 from datetime import datetime, timedelta
 import json
 from timba_core import LIGAS, URLS_FIXTURE, normalizar_csv, calcular_fuerzas, predecir_partido, obtener_h2h, obtener_proximos_partidos, emparejar_equipo, encontrar_equipo_similar, descargar_csv_safe
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
 
 # ========== CONFIGURACIÓN INICIAL ==========
 st.set_page_config(

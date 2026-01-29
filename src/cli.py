@@ -1,6 +1,9 @@
 import io
 import requests
 import pandas as pd
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
 from timba_core import LIGAS, URLS_FIXTURE, normalizar_csv, calcular_fuerzas, predecir_partido, obtener_proximos_partidos, emparejar_equipo, encontrar_equipo_similar, imprimir_barra, descargar_csv_safe
 
 
