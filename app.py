@@ -221,6 +221,9 @@ def main():
                 else:
                     st.success(f"✅ Se encontraron {len(partidos)} partidos")
                     
+                    # ========== RECOLECCIÓN DE DATOS PARA EXPORTACIÓN ==========
+                    datos_para_excel = []
+                    
                     # Procesar cada partido
                     for idx, partido in enumerate(partidos, 1):
                         local = partido['local']
@@ -246,8 +249,77 @@ def main():
                         if prediccion:
                             with st.expander(f"📅 {fecha.strftime('%d/%m/%Y %H:%M')} | {local_emp.upper()} vs {visitante_emp.upper()}"):
                                 mostrar_prediccion_streamlit(local_emp, visitante_emp, prediccion, fuerzas, df)
+                            
+                            # ========== AGREGAR DATOS AL EXCEL ==========
+                            # Determinar predicción IA (resultado más probable)
+                            prob_local = prediccion['Prob_Local']
+                            prob_empate = prediccion['Prob_Empate']
+                            prob_vis = prediccion['Prob_Vis']
+                            
+                            max_prob = max(prob_local, prob_empate, prob_vis)
+                            if max_prob == prob_local:
+                                prediccion_ia = "Local"
+                            elif max_prob == prob_empate:
+                                prediccion_ia = "Empate"
+                            else:
+                                prediccion_ia = "Visitante"
+                            
+                            # Obtener marcador exacto más probable
+                            top_3 = prediccion.get('Top_3_Marcadores', [])
+                            marcador_est = top_3[0]['marcador'] if top_3 else "N/A"
+                            
+                            # Agregar fila a datos_para_excel
+                            datos_para_excel.append({
+                                'Fecha': fecha.strftime('%Y-%m-%d %H:%M'),
+                                'Liga': liga_nombre,
+                                'Local': local_emp,
+                                'Visitante': visitante_emp,
+                                'Prob. Local (%)': f"{prob_local*100:.1f}",
+                                'Prob. Empate (%)': f"{prob_empate*100:.1f}",
+                                'Prob. Visita (%)': f"{prob_vis*100:.1f}",
+                                'xG Local': f"{prediccion['Goles_Esp_Local']:.2f}",
+                                'xG Visita': f"{prediccion['Goles_Esp_Vis']:.2f}",
+                                'Predicción IA': prediccion_ia,
+                                'Marcador Est. (Bola de Cristal)': marcador_est
+                            })
                         else:
                             st.warning(f"❌ Error al calcular predicción para {local} vs {visitante}")
+                    
+                    # ========== EXPORTAR A EXCEL ==========
+                    if datos_para_excel:
+                        st.markdown("---")
+                        st.subheader("📥 Descargar Reporte")
+                        
+                        # Crear DataFrame
+                        df_export = pd.DataFrame(datos_para_excel)
+                        
+                        # Ordenar por fecha
+                        df_export['Fecha'] = pd.to_datetime(df_export['Fecha'])
+                        df_export = df_export.sort_values('Fecha').reset_index(drop=True)
+                        
+                        # Crear buffer en memoria
+                        buffer = io.BytesIO()
+                        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                            df_export.to_excel(writer, index=False, sheet_name='Predicciones')
+                            
+                            # Ajustar ancho de columnas
+                            worksheet = writer.sheets['Predicciones']
+                            for idx, col in enumerate(df_export.columns, 1):
+                                max_length = max(df_export[col].astype(str).str.len().max(), len(col)) + 2
+                                worksheet.column_dimensions[chr(64 + idx)].width = min(max_length, 40)
+                        
+                        buffer.seek(0)
+                        
+                        # Botón de descarga
+                        st.download_button(
+                            label='📥 Descargar Reporte en Excel',
+                            data=buffer,
+                            file_name=f'Predicciones_Futbol_{fecha.strftime("%Y%m%d")}.xlsx',
+                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            use_container_width=True
+                        )
+                        
+                        st.success(f"✅ {len(datos_para_excel)} predicciones listas para exportar")
 
 def mostrar_prediccion_streamlit(local, visitante, prediccion, fuerzas, df):
     """
