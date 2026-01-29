@@ -52,6 +52,26 @@ LIGAS = {
         ],
         'codigo': 'EL',
         'formato': 'github'
+    },
+    11: {
+        'nombre': '🇧🇷 Brasileirão Série A - Temporada 2025',
+        'url': 'https://raw.githubusercontent.com/footballcsv/brazil/master/2025/a.csv',
+        'alternativas': [
+            'https://raw.githubusercontent.com/footballcsv/brazil/master/2025/a.csv',
+            'https://raw.githubusercontent.com/footballcsv/brazil/gh-pages/2025/a.csv'
+        ],
+        'codigo': 'BRA',
+        'formato': 'github'
+    },
+    12: {
+        'nombre': '🇦🇷 Liga Profesional Argentina - Temporada 2025',
+        'url': 'https://raw.githubusercontent.com/footballcsv/argentina/master/2025/1-primera.csv',
+        'alternativas': [
+            'https://raw.githubusercontent.com/footballcsv/argentina/master/2025/1-primera.csv',
+            'https://raw.githubusercontent.com/footballcsv/argentina/gh-pages/2025/1-primera.csv'
+        ],
+        'codigo': 'ARG',
+        'formato': 'github'
     }
 }
 
@@ -63,7 +83,9 @@ URLS_FIXTURE = {
     4: {'url': 'https://fixturedownload.com/feed/json/bundesliga-2025', 'liga': 'Bundesliga'},
     5: {'url': 'https://fixturedownload.com/feed/json/ligue-1-2025', 'liga': 'Ligue 1'},
     6: {'url': 'https://fixturedownload.com/feed/json/champions-league-2025', 'liga': 'Champions League'},
-    7: {'url': 'https://fixturedownload.com/feed/json/europa-league-2025', 'liga': 'Europa League'}
+    7: {'url': 'https://fixturedownload.com/feed/json/europa-league-2025', 'liga': 'Europa League'},
+    11: {'url': 'https://fixturedownload.com/feed/json/cbf-campeonato-brasileiro-2025', 'liga': 'Brasileirão'},
+    12: {'url': 'https://fixturedownload.com/feed/json/argentina-primera-division-2025', 'liga': 'Liga Argentina'}
 }
 
 # ========== DICCIONARIO DE ALIAS DE EQUIPOS ==========
@@ -116,7 +138,64 @@ ALIAS_TEAMS = {
     "Stade Rennais FC": "Rennes", "Stade Rennais": "Rennes",
     "RC Lens": "Lens",
     "Havre Athletic Club": "Le Havre",
-    "Stade Brestois 29": "Brest"
+    "Stade Brestois 29": "Brest",
+
+    # --- BRASIL SÉRIE A ---
+    "Flamengo": "Flamengo", "Clube de Regatas do Flamengo": "Flamengo", "Flamengo RJ": "Flamengo",
+    "Palmeiras": "Palmeiras", "SE Palmeiras": "Palmeiras", "Palmeiras SP": "Palmeiras",
+    "São Paulo": "Sao Paulo", "Sao Paulo": "Sao Paulo", "Sao Paulo FC": "Sao Paulo", "São Paulo FC": "Sao Paulo", "SPFC": "Sao Paulo",
+    "Corinthians": "Corinthians", "SC Corinthians": "Corinthians", "Corinthians SP": "Corinthians",
+    "Atlético Mineiro": "Ath Mineiro", "Atletico Mineiro": "Ath Mineiro", "ATLÉTICO PARANAENSE": "Ath Mineiro",
+    "Internacional": "Internacional", "SC Internacional": "Internacional",
+    "Fluminense": "Fluminense", "Fluminense FC": "Fluminense", "Fluminense RJ": "Fluminense",
+    "Botafogo": "Botafogo", "Botafogo de Futebol e Regatas": "Botafogo",
+    "Grêmio": "Gremio", "Gremio": "Gremio",
+    "Cruzeiro": "Cruzeiro",
+    "Santos": "Santos", "Santos FC": "Santos",
+    "Vasco da Gama": "Vasco", "Clube de Regatas do Vasco da Gama": "Vasco",
+    "Bahia": "Bahia", "Esporte Clube Bahia": "Bahia",
+    "Cebolinha": "Cebolinha", "EC Vitória": "Vitoria",
+    "Fortaleza": "Fortaleza", "Fortaleza EC": "Fortaleza",
+    "Cuiabá": "Cuiaba", "Cuiaba": "Cuiaba",
+    "Goiás": "Goias", "Goias": "Goias",
+    "Atlético Goianiense": "Ath Goianiense", "Atletico Goianiense": "Ath Goianiense",
+    "Coritiba": "Coritiba",
+    "RB Bragantino": "Bragantino", "Red Bull Bragantino": "Bragantino",
+    "Juventude": "Juventude",
+    "Chapecoense": "Chapecoense",
+    "América MG": "America-MG", "América Mineiro": "America-MG",
+    "Avaí": "Avai", "Avai": "Avai",
+    "Amazonas": "Amazonas",
+    "Athletico Paranaense": "Athletico PR", "Atletico Paranaense": "Athletico PR",
+
+    # --- ARGENTINA LIGA PROFESIONAL ---
+    "Boca Juniors": "Boca Juniors", "Boca": "Boca Juniors",
+    "River Plate": "River Plate", "Club Atletico River Plate": "River Plate",
+    "Racing Club": "Racing", "Racing": "Racing",
+    "Independiente": "Independiente", "CA Independiente": "Independiente",
+    "San Lorenzo": "San Lorenzo", "San Lorenzo de Almagro": "San Lorenzo",
+    "Estudiantes": "Estudiantes", "Estudiantes de la Plata": "Estudiantes",
+    "Talleres": "Talleres", "Talleres de Córdoba": "Talleres",
+    "Rosario Central": "Rosario Central", "Central Cordoba": "Central Cordoba",
+    "Newell's Old Boys": "Newells", "Newells": "Newells",
+    "Vélez": "Velez", "Velez Sarsfield": "Velez", "Vélez Sársfield": "Velez",
+    "Argentinos": "Argentinos", "Argentinos Juniors": "Argentinos",
+    "Huracán": "Huracan", "Huracan": "Huracan",
+    "Boca Juniors": "Boca",
+    "Godoy Cruz": "Godoy Cruz",
+    "Deportivo Morón": "Moron", "Moron": "Moron",
+    "Gimnasia y Esgrima": "Gimnasia", "Gimnasia La Plata": "Gimnasia",
+    "Défensa y Justicia": "Defensa", "Defensa y Justicia": "Defensa",
+    "Banfield": "Banfield",
+    "Atlético Tucumán": "Ath Tucuman", "Atletico Tucuman": "Ath Tucuman",
+    "Platense": "Platense",
+    "Lanús": "Lanus", "Lanus": "Lanus",
+    "Tigre": "Tigre",
+    "Colón": "Colon", "Colon": "Colon",
+    "Unión": "Union", "Union": "Union",
+    "Arsenal": "Arsenal",
+    "Quilmes": "Quilmes",
+    "Barracas Central": "Barracas"
 }
 
 
@@ -294,24 +373,31 @@ def calcular_fuerzas(df):
         ataque_fuera_final = (ataque_reciente * 0.6) + (ataque_fuera_global * 0.4)
         defensa_fuera_final = (defensa_reciente * 0.6) + (defensa_fuera_global * 0.4)
         # Cálculo de CÓRNERS (ponderado 75% reciente + 25% histórico)
-        corners_casa_global = partidos_casa_global['HC'].mean() if 'HC' in df.columns and len(partidos_casa_global) > 0 else 0
-        corners_fuera_global = partidos_fuera_global['AC'].mean() if 'AC' in df.columns and len(partidos_fuera_global) > 0 else 0
+        # DEFENSIVA: Verificar disponibilidad de columnas HC y AC
+        tiene_datos_corners = 'HC' in df.columns and 'AC' in df.columns
         
-        if len(ultimos_5) > 0:
-            corners_casa_reciente = sum([p.get('Corners_Casa', 0) for p in ultimos_5 if 'Corners_Casa' in p]) / len(ultimos_5) if any('Corners_Casa' in p for p in ultimos_5) else corners_casa_global
-            corners_fuera_reciente = sum([p.get('Corners_Fuera', 0) for p in ultimos_5 if 'Corners_Fuera' in p]) / len(ultimos_5) if any('Corners_Fuera' in p for p in ultimos_5) else corners_fuera_global
+        if tiene_datos_corners:
+            corners_casa_global = partidos_casa_global['HC'].mean() if len(partidos_casa_global) > 0 else 0
+            corners_fuera_global = partidos_fuera_global['AC'].mean() if len(partidos_fuera_global) > 0 else 0
+            corners_casa_contra = partidos_casa_global['AC'].mean() if len(partidos_casa_global) > 0 else 0
+            corners_fuera_contra = partidos_fuera_global['HC'].mean() if len(partidos_fuera_global) > 0 else 0
+        else:
+            corners_casa_global = corners_fuera_global = corners_casa_contra = corners_fuera_contra = 0
+        
+        # Cálculo reciente de córners (si hay datos disponibles)
+        if len(ultimos_5) > 0 and tiene_datos_corners:
+            corners_casa_reciente = corners_casa_global  # Use historical as proxy for recent
+            corners_fuera_reciente = corners_fuera_global
         else:
             corners_casa_reciente = corners_casa_global
             corners_fuera_reciente = corners_fuera_global
         
-        # Ponderar: 75% reciente + 25% histórico (igual que goles)
+        # Ponderar: 75% reciente + 25% histórico
         corners_casa_ponderado = (corners_casa_reciente * 0.75) + (corners_casa_global * 0.25)
         corners_fuera_ponderado = (corners_fuera_reciente * 0.75) + (corners_fuera_global * 0.25)
         
         corners_casa = corners_casa_ponderado
         corners_fuera = corners_fuera_ponderado
-        corners_casa_contra = partidos_casa_global['AC'].mean() if 'AC' in df.columns and len(partidos_casa_global) > 0 else 0
-        corners_fuera_contra = partidos_fuera_global['HC'].mean() if 'HC' in df.columns and len(partidos_fuera_global) > 0 else 0
         tarjetas_am_casa = partidos_casa_global['HY'].mean() if 'HY' in df.columns and len(partidos_casa_global) > 0 else 0
         tarjetas_am_fuera = partidos_fuera_global['AY'].mean() if 'AY' in df.columns and len(partidos_fuera_global) > 0 else 0
         tarjetas_ro_casa = partidos_casa_global['HR'].mean() if 'HR' in df.columns and len(partidos_casa_global) > 0 else 0
