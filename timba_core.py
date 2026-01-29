@@ -66,6 +66,59 @@ URLS_FIXTURE = {
     7: {'url': 'https://fixturedownload.com/feed/json/europa-league-2025', 'liga': 'Europa League'}
 }
 
+# ========== DICCIONARIO DE ALIAS DE EQUIPOS ==========
+ALIAS_TEAMS = {
+    # --- PREMIER LEAGUE ---
+    "Manchester United": "Man United", "Man Utd": "Man United",
+    "Manchester City": "Man City",
+    "Tottenham Hotspur": "Tottenham", "Spurs": "Tottenham",
+    "Wolverhampton Wanderers": "Wolves", "Wolverhampton": "Wolves",
+    "Nottingham Forest": "Nott'm Forest",
+    "Brighton & Hove Albion": "Brighton",
+    "Newcastle United": "Newcastle",
+    "West Ham United": "West Ham",
+    "Sheffield United": "Sheffield United",
+
+    # --- LA LIGA ---
+    "Atletico Madrid": "Ath Madrid",
+    "Athletic Club": "Ath Bilbao", "Athletic Bilbao": "Ath Bilbao",
+    "Real Betis": "Betis",
+    "Celta de Vigo": "Celta",
+    "RCD Mallorca": "Mallorca",
+    "Rayo Vallecano": "Vallecano",
+    "Real Sociedad": "Sociedad",
+    "Deportivo Alavés": "Alaves", "Alavés": "Alaves", "Deportivo Alaves": "Alaves",
+    "RCD Espanyol de Barcelona": "Espanol", "Espanyol": "Espanol",
+
+    # --- BUNDESLIGA ---
+    "Bayer 04 Leverkusen": "Leverkusen", "Bayer Leverkusen": "Leverkusen",
+    "Borussia Dortmund": "Dortmund",
+    "Borussia Monchengladbach": "M'gladbach", "Borussia Mönchengladbach": "M'gladbach",
+    "Eintracht Frankfurt": "Ein Frankfurt",
+    "Bayern Munich": "Bayern Munich",
+    "VfB Stuttgart": "Stuttgart",
+    "VfL Wolfsburg": "Wolfsburg",
+    "Mainz 05": "Mainz", "1. FSV Mainz 05": "Mainz",
+    "SV Werder Bremen": "Werder Bremen",
+    "Sport-Club Freiburg": "Freiburg", "SC Freiburg": "Freiburg",
+
+    # --- SERIE A ---
+    "Internazionale": "Inter", "Inter Milan": "Inter",
+    "AC Milan": "Milan",
+    "AS Roma": "Roma",
+    "Hellas Verona": "Verona",
+
+    # --- LIGUE 1 ---
+    "Paris Saint-Germain": "Paris SG", "Paris SG": "Paris SG",
+    "Olympique de Marseille": "Marseille",
+    "Olympique Lyonnais": "Lyon",
+    "AS Monaco": "Monaco",
+    "Stade Rennais FC": "Rennes", "Stade Rennais": "Rennes",
+    "RC Lens": "Lens",
+    "Havre Athletic Club": "Le Havre",
+    "Stade Brestois 29": "Brest"
+}
+
 
 def normalizar_csv(df):
     rename_map = {
@@ -168,9 +221,28 @@ def obtener_proximos_partidos(url_fixture):
 
 
 def emparejar_equipo(nombre_fixture, equipos_validos):
+    """
+    Empareja el nombre del equipo con el más similar.
+    Primero intenta usar ALIAS_TEAMS, luego usa difflib con fuzzy matching.
+    Retorna (nombre_normalizado, exito_bool).
+    """
+    # Paso 1: Buscar en ALIAS_TEAMS
+    if nombre_fixture in ALIAS_TEAMS:
+        nombre_normalizado = ALIAS_TEAMS[nombre_fixture]
+        if nombre_normalizado in equipos_validos:
+            return nombre_normalizado, True
+    
+    # Paso 2: Buscar alias de nombres ya normalizados
+    for alias_key, alias_value in ALIAS_TEAMS.items():
+        if nombre_fixture.lower() == alias_value.lower():
+            if alias_value in equipos_validos:
+                return alias_value, True
+    
+    # Paso 3: Usar difflib con fuzzy matching
     coincidencias = get_close_matches(nombre_fixture, equipos_validos, n=1, cutoff=0.6)
     if coincidencias:
         return coincidencias[0], True
+    
     return None, False
 
 
