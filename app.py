@@ -46,6 +46,60 @@ def calcular_y_cachear_fuerzas(df_csv_string):
 
 # Las funciones auxiliares se importan desde `timba_core.py`.
 
+# ========== FUNCIÓN DE SEMÁFORO VISUAL ==========
+def mostrar_recomendaciones_semaforo(prediccion, umbral_alto=0.70, umbral_medio=0.55):
+    """
+    Muestra un semáforo visual con recomendaciones basadas en probabilidades.
+    umbral_alto: si prob >= 70%, se muestra en 🔥 (verde/recomendado)
+    umbral_medio: si prob >= 55%, se muestra en ⚠️ (amarillo/probable)
+    """
+    st.subheader("💡 SUGERENCIAS DEL ALGORITMO")
+    
+    recomendaciones = []
+    
+    # Doble Oportunidad
+    if prediccion['Prob_1X'] >= umbral_alto:
+        recomendaciones.append(("🔥", f"Doble Oportunidad: {prediccion.get('Goles_Esp_Local', 0) and '1X' or 'Local o Empate'}", f"{prediccion['Prob_1X']*100:.1f}%"))
+    elif prediccion['Prob_1X'] >= umbral_medio:
+        recomendaciones.append(("⚠️", f"Doble Oportunidad: Local o Empate", f"{prediccion['Prob_1X']*100:.1f}%"))
+    
+    if prediccion['Prob_X2'] >= umbral_alto:
+        recomendaciones.append(("🔥", "Doble Oportunidad: Empate o Visitante", f"{prediccion['Prob_X2']*100:.1f}%"))
+    elif prediccion['Prob_X2'] >= umbral_medio:
+        recomendaciones.append(("⚠️", "Doble Oportunidad: Empate o Visitante", f"{prediccion['Prob_X2']*100:.1f}%"))
+    
+    if prediccion['Prob_12'] >= umbral_alto:
+        recomendaciones.append(("🔥", "Sin Empate: Gana alguien", f"{prediccion['Prob_12']*100:.1f}%"))
+    elif prediccion['Prob_12'] >= umbral_medio:
+        recomendaciones.append(("⚠️", "Sin Empate: Gana alguien", f"{prediccion['Prob_12']*100:.1f}%"))
+    
+    # Mercados de goles
+    if prediccion['Over_15'] >= umbral_alto:
+        recomendaciones.append(("⚽", f"Goles: +1.5 Goles (Prob: {prediccion['Over_15']*100:.1f}%)", ""))
+    elif prediccion['Over_15'] >= umbral_medio:
+        recomendaciones.append(("⚽", f"Goles: +1.5 Goles (Prob: {prediccion['Over_15']*100:.1f}%)", ""))
+    
+    if prediccion['Over_25'] >= umbral_alto:
+        recomendaciones.append(("⚽", f"Goles: +2.5 Goles (Prob: {prediccion['Over_25']*100:.1f}%)", ""))
+    elif prediccion['Over_25'] >= umbral_medio:
+        recomendaciones.append(("⚽", f"Goles: +2.5 Goles (Prob: {prediccion['Over_25']*100:.1f}%)", ""))
+    
+    if prediccion['Under_35'] >= umbral_alto:
+        recomendaciones.append(("🛡️", f"Seguridad: -3.5 Goles (Prob: {prediccion['Under_35']*100:.1f}%)", ""))
+    elif prediccion['Under_35'] >= umbral_medio:
+        recomendaciones.append(("🛡️", f"Seguridad: -3.5 Goles (Prob: {prediccion['Under_35']*100:.1f}%)", ""))
+    
+    if recomendaciones:
+        for emoji, texto, extra in recomendaciones:
+            if emoji == "🔥":
+                st.success(f"{emoji} {texto} {extra}")
+            elif emoji == "⚠️":
+                st.warning(f"{emoji} {texto} {extra}")
+            else:
+                st.info(f"{emoji} {texto} {extra}")
+    else:
+        st.info("📌 No hay recomendaciones claras. Analiza los datos detallados abajo.")
+
 # ========== INTERFAZ PRINCIPAL ==========
 def main():
     st.title("⚽ TIMBA PREDICTOR - Análisis de Partidos con Poisson")
@@ -371,6 +425,10 @@ def mostrar_prediccion_streamlit(local, visitante, prediccion, fuerzas, df):
             st.info(f"ℹ️ Hay {len(h2h_data) - 5} encuentro(s) más en el historial.")
     else:
         st.info("📌 Sin historial directo previo entre estos equipos.")
+    
+    # ========== SECCIÓN 8: SEMÁFORO VISUAL ==========
+    st.divider()
+    mostrar_recomendaciones_semaforo(prediccion, umbral_alto=0.70, umbral_medio=0.55)
     
     st.info("💡 **Nota:** Ponderación 60% FORMA RECIENTE + 40% ESTADÍSTICAS GLOBALES")
 

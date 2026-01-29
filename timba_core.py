@@ -392,6 +392,22 @@ def predecir_partido(local, visitante, fuerzas, media_liga_local, media_liga_vis
             marcadores_exactos.append({'marcador': f'{goles_l}-{goles_v}', 'prob': prob})
     marcadores_exactos.sort(key=lambda x: x['prob'], reverse=True)
     top_3_marcadores = marcadores_exactos[:3]
+    
+    # ========== MERCADOS DE GOLES (Over/Under) ==========
+    # λ_total = λ_local + λ_visitante (suma de Poisson es Poisson)
+    lambda_total = lambda_local + lambda_visitante
+    
+    # Over/Under usando Poisson CDF (probabilidad acumulada)
+    # P(X > n) = 1 - P(X <= n)
+    over_15 = 1 - poisson.cdf(1, lambda_total)  # P(goles > 1.5) = P(goles >= 2)
+    over_25 = 1 - poisson.cdf(2, lambda_total)  # P(goles > 2.5) = P(goles >= 3)
+    under_35 = poisson.cdf(3, lambda_total)     # P(goles <= 3.5) = P(goles < 3.5)
+    
+    # ========== DOBLE OPORTUNIDAD ==========
+    prob_1x = victoria_local + empate  # Local o Empate
+    prob_x2 = empate + victoria_visitante  # Empate o Visitante
+    prob_12 = victoria_local + victoria_visitante  # Sin Empate (1 o 2)
+    
     return {
         'Goles_Esp_Local': lambda_local,
         'Goles_Esp_Vis': lambda_visitante,
@@ -417,6 +433,14 @@ def predecir_partido(local, visitante, fuerzas, media_liga_local, media_liga_vis
         'Goles_2T_Local': fuerzas[local].get('Goles_2T_Promedio', 0),
         'Goles_2T_Vis': fuerzas[visitante].get('Goles_2T_Promedio', 0),
         'Top_3_Marcadores': top_3_marcadores,
+        # Mercados de goles
+        'Over_15': over_15,
+        'Over_25': over_25,
+        'Under_35': under_35,
+        # Doble oportunidad
+        'Prob_1X': prob_1x,
+        'Prob_X2': prob_x2,
+        'Prob_12': prob_12,
     }
 
 

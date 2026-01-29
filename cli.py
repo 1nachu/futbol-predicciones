@@ -25,6 +25,50 @@ def descargar_csv(url_or_list):
     return df, ok
 
 
+def mostrar_recomendaciones_semaforo_cli(prediccion, umbral_alto=0.70, umbral_medio=0.55):
+    """Muestra recomendaciones en consola con umbrales de confianza."""
+    recomendaciones = []
+    
+    # Doble Oportunidad
+    if prediccion['Prob_1X'] >= umbral_alto:
+        recomendaciones.append(f"🔥 DOBLE OPORTUNIDAD 1X: {prediccion['Prob_1X']*100:.1f}%")
+    elif prediccion['Prob_1X'] >= umbral_medio:
+        recomendaciones.append(f"⚠️  DOBLE OPORTUNIDAD 1X: {prediccion['Prob_1X']*100:.1f}%")
+    
+    if prediccion['Prob_X2'] >= umbral_alto:
+        recomendaciones.append(f"🔥 DOBLE OPORTUNIDAD X2: {prediccion['Prob_X2']*100:.1f}%")
+    elif prediccion['Prob_X2'] >= umbral_medio:
+        recomendaciones.append(f"⚠️  DOBLE OPORTUNIDAD X2: {prediccion['Prob_X2']*100:.1f}%")
+    
+    if prediccion['Prob_12'] >= umbral_alto:
+        recomendaciones.append(f"🔥 SIN EMPATE (12): {prediccion['Prob_12']*100:.1f}%")
+    elif prediccion['Prob_12'] >= umbral_medio:
+        recomendaciones.append(f"⚠️  SIN EMPATE (12): {prediccion['Prob_12']*100:.1f}%")
+    
+    # Mercados de goles
+    if prediccion['Over_15'] >= umbral_alto:
+        recomendaciones.append(f"⚽ GOLES +1.5: {prediccion['Over_15']*100:.1f}%")
+    elif prediccion['Over_15'] >= umbral_medio:
+        recomendaciones.append(f"⚽ GOLES +1.5: {prediccion['Over_15']*100:.1f}%")
+    
+    if prediccion['Over_25'] >= umbral_alto:
+        recomendaciones.append(f"⚽ GOLES +2.5: {prediccion['Over_25']*100:.1f}%")
+    elif prediccion['Over_25'] >= umbral_medio:
+        recomendaciones.append(f"⚽ GOLES +2.5: {prediccion['Over_25']*100:.1f}%")
+    
+    if prediccion['Under_35'] >= umbral_alto:
+        recomendaciones.append(f"🛡️  SEGURIDAD -3.5: {prediccion['Under_35']*100:.1f}%")
+    elif prediccion['Under_35'] >= umbral_medio:
+        recomendaciones.append(f"🛡️  SEGURIDAD -3.5: {prediccion['Under_35']*100:.1f}%")
+    
+    if recomendaciones:
+        print("\n💡 SUGERENCIAS DEL ALGORITMO:")
+        for rec in recomendaciones:
+            print(f"   {rec}")
+    else:
+        print("\n💡 SUGERENCIAS DEL ALGORITMO: No hay recomendaciones claras (confianza < 55%)")
+
+
 def analizar_proxima_fecha_liga(id_liga):
     liga = LIGAS.get(id_liga)
     if not liga:
@@ -77,6 +121,7 @@ def analizar_proxima_fecha_liga(id_liga):
         print('Top 3 marcadores probables:')
         for m in top:
             print(f"  {m['marcador']}  ({m['prob']:.2%})")
+        mostrar_recomendaciones_semaforo_cli(pred)
 
 
 def predict_manual(id_liga):
@@ -121,6 +166,7 @@ def predict_manual(id_liga):
     print('Top 3 marcadores probables:')
     for m in top:
         print(f"  {m['marcador']}  ({m['prob']:.2%})")
+    mostrar_recomendaciones_semaforo_cli(pred)
 
 
 def main():
