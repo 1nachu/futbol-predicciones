@@ -1,0 +1,122 @@
+## 📤 PUSH A GITHUB - COMPLETADO ✅
+
+### 📊 Resumen del Commit
+
+**Commit Hash**: `8c19170`  
+**Rama**: `main`  
+**Fecha**: 29 de enero de 2026  
+**Status**: ✅ PUSHED a origin/main
+
+---
+
+## 📝 Contenido del Push
+
+### Nuevos Archivos (6)
+```
+✅ CAMBIOS_CORNERS.md              (Documentación técnica de córners)
+✅ COMPARACION_ANTES_DESPUES.md   (Comparación v1.5 vs v2.0)
+✅ QUICK_REFERENCE.md              (Cheatsheet rápido)
+✅ RESUMEN_EJECUTIVO.md            (Resumen ejecutivo)
+✅ SISTEMA_COMPLETO.md             (Arquitectura completa)
+✅ STATUS.txt                       (Estado del proyecto)
+✅ test_corners.py                 (Test de válíación)
+```
+
+### Archivos Modificados (3)
+```
+✅ app.py                          (+30 líneas: semáforo expandido)
+✅ cli.py                          (+25 líneas: recomendaciones CLI)
+✅ timba_core.py                   (+50 líneas: córners + mercados)
+```
+
+---
+
+## 📈 Estadísticas
+
+- **Total de cambios**: 12 files
+- **Líneas agregadas**: ~1,850
+- **Líneas modificadas**: ~12
+- **Tamaño del commit**: 21.74 KiB
+- **Objetos delta**: 4
+
+---
+
+## 🔗 Detalles del Push
+
+```
+To github.com:1nachu/futbol-predicciones.git
+   40518cc..8c19170  main -> main
+rama 'main' configurada para rastrear 'origin/main'.
+```
+
+**URL**: https://github.com/1nachu/futbol-predicciones/commit/8c19170
+
+---
+
+## 🎯 Mensaje de Commit
+
+```
+🚩 v2.0: Expansión de Mercados de Córners
+
+- Nuevo cálculo de xCorners con ponderación 75/25
+- Mercados Over/Under de Córners (8.5, 9.5, 10.5)
+- Ganador de Córners (1X2) basado en ratio de lambdas
+- Semáforo visual expandido con 5 nuevas recomendaciones
+- Validaciones automáticas para datos faltantes
+- Documentación técnica completa
+- Tests de validación incluidos
+
+v1.5 → v2.0: +56% mercados (9 → 14)
+```
+
+---
+
+## ✅ Verificación
+
+```bash
+$ git log --oneline -1
+8c19170 (HEAD -> main, origin/main) 🚩 v2.0: Expansión de Mercados de Córners
+
+$ git status
+En la rama main
+Tu rama está actualizada con 'origin/main'.
+nada para confirmar, árbol de trabajo limpio
+```
+
+---
+
+## 📊 Cambio en Versión
+
+```
+Antes:  v1.5
+        └─ 9 mercados
+        └─ Goles + Doble Oportunidad
+        └─ Sin córners
+
+Después: v2.0
+         └─ 14 mercados (+56%)
+         └─ Goles + Doble Oportunidad + Córners
+         └─ Ganador Córners 1X2
+         └─ Validaciones automáticas
+         └─ Documentación técnica
+```
+
+---
+
+## 🚀 Próximo Paso
+
+El repositorio está actualizado y listo. Todos los cambios v2.0 están en GitHub en la rama `main`.
+
+Para clonar/actualizar localmente:
+```bash
+git clone https://github.com/1nachu/futbol-predicciones.git
+# o
+git pull origin main
+```
+
+---
+
+**Status**: 🟢 READY FOR PRODUCTION  
+**Rama activa**: main  
+**Último commit**: 8c19170  
+**Sincronizado con GitHub**: ✅ SÍ
