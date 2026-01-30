@@ -12,7 +12,16 @@ from difflib import get_close_matches
 from datetime import datetime, timedelta
 import json
 from tabulate import tabulate
-from timba_core import LIGAS, URLS_FIXTURE, normalizar_csv, calcular_fuerzas, predecir_partido, obtener_h2h, obtener_proximos_partidos, emparejar_equipo, encontrar_equipo_similar, descargar_csv_safe
+
+# ========== IMPORTAR TIMBA CORE CENTRALIZADO ==========
+from timba_core import (
+    LIGAS, URLS_FIXTURE, normalizar_csv, emparejar_equipo,
+    encontrar_equipo_similar, descargar_csv_safe,
+    obtener_timba_core, inicializar_timba_core
+)
+
+# Inicializar Timba Core con soporte de API
+timba_core = inicializar_timba_core()
 
 # ========== IMPORTAR TEAM NORMALIZATION ==========
 try:
@@ -66,7 +75,7 @@ def calcular_y_cachear_fuerzas(df_csv_string):
     """
     df = pd.read_csv(io.StringIO(df_csv_string))
     df = normalizar_csv(df)
-    fuerzas, media_local, media_vis = calcular_fuerzas(df)
+    fuerzas, media_local, media_vis = timba_core.calcular_fuerzas(df)
     return fuerzas, media_local, media_vis, df
 
 # Las funciones auxiliares se importan desde `timba_core.py`.
@@ -93,10 +102,6 @@ def mostrar_panel_live_scores():
         placeholder="Ingresa tu API Key",
         key="api_key_live"
     )
-    
-    if not api_key:
-        st.info("💡 Ingresa una API Key de football-data.org para ver marcadores en vivo")
-        return
     
     # Seleccionar competiciones
     competiciones_disponibles = {
@@ -288,7 +293,7 @@ def main():
         media_local = media_vis = 0
     else:
         with st.spinner(f"🧠 Calculando fuerzas de los equipos..."):
-            fuerzas, media_local, media_vis = calcular_fuerzas(df)
+            fuerzas, media_local, media_vis = timba_core.calcular_fuerzas(df)
     
     equipos_validos = sorted(list(fuerzas.keys())) if data_available else []
     
@@ -332,7 +337,7 @@ def main():
                 if equipo_local == equipo_visitante:
                     st.error("❌ Los equipos deben ser diferentes.")
                 else:
-                    prediccion = predecir_partido(equipo_local, equipo_visitante, fuerzas, media_local, media_vis)
+                    prediccion = timba_core.predecir_partido(equipo_local, equipo_visitante, fuerzas, media_local, media_vis)
                     if prediccion:
                         st.success("✅ Predicción calculada")
                         mostrar_prediccion_streamlit(equipo_local, equipo_visitante, prediccion, fuerzas, df)
@@ -354,7 +359,7 @@ def main():
                 st.error("❌ No se encontró URL de fixture para esta liga.")
             else:
                 with st.spinner(f"⏳ Obteniendo partidos de {liga_nombre}..."):
-                    partidos = obtener_proximos_partidos(fixture_url)
+                    partidos = timba_core.obtener_proximos_partidos(fixture_url)
                 
                 if not partidos:
                     st.warning("⚠️ No se encontraron partidos en los próximos 7 días.")
@@ -386,7 +391,7 @@ def main():
                             continue
 
                         # Calcular predicción
-                        prediccion = predecir_partido(local_emp, visitante_emp, fuerzas, media_local, media_vis)
+                        prediccion = timba_core.predecir_partido(local_emp, visitante_emp, fuerzas, media_local, media_vis)
 
                         if prediccion:
                             with st.expander(f"📅 {fecha.strftime('%d/%m/%Y %H:%M')} | {local_emp.upper()} vs {visitante_emp.upper()}"):
@@ -838,7 +843,7 @@ def main():
     # ========== SECCIÓN 7: H2H ==========
     st.subheader("🥊 Historial Directo (H2H)")
     
-    h2h_data = obtener_h2h(local, visitante, df) if df is not None else []
+    h2h_data = timba_core.obtener_h2h(local, visitante, df) if df is not None else []
     
     if h2h_data:
         st.write(f"**Últimos {min(5, len(h2h_data))} enfrentamientos:**")

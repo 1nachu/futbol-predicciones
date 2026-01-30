@@ -8,7 +8,14 @@ from datetime import datetime
 from tabulate import tabulate
 
 sys.path.insert(0, os.path.dirname(__file__))
-from timba_core import LIGAS, URLS_FIXTURE, normalizar_csv, calcular_fuerzas, predecir_partido, obtener_proximos_partidos, emparejar_equipo, encontrar_equipo_similar, imprimir_barra, descargar_csv_safe
+from timba_core import (
+    LIGAS, URLS_FIXTURE, normalizar_csv, emparejar_equipo,
+    encontrar_equipo_similar, imprimir_barra, descargar_csv_safe,
+    inicializar_timba_core
+)
+
+# Inicializar Timba Core
+timba_core = inicializar_timba_core()
 
 # ========== IMPORTAR TEAM NORMALIZATION ==========
 try:
@@ -46,8 +53,6 @@ def mostrar_recomendaciones_semaforo_cli(prediccion, umbral_alto=0.70, umbral_me
     """Muestra recomendaciones en consola con umbrales de confianza."""
     recomendaciones = []
     tiene_datos_corners = prediccion.get('Corners_Lambda_Total', 0) > 0
-    
-    # Doble Oportunidad
     if prediccion['Prob_1X'] >= umbral_alto:
         recomendaciones.append(f"🔥 DOBLE OPORTUNIDAD 1X: {prediccion['Prob_1X']*100:.1f}%")
     elif prediccion['Prob_1X'] >= umbral_medio:
@@ -127,13 +132,13 @@ def analizar_proxima_fecha_liga(id_liga):
         fuerzas = {}
         media_local = media_visitante = 0
     else:
-        fuerzas, media_local, media_visitante = calcular_fuerzas(df)
+        fuerzas, media_local, media_visitante = timba_core.calcular_fuerzas(df)
     url_fix = URLS_FIXTURE.get(id_liga, {}).get('url')
     if not url_fix:
         print('No hay URL de fixtures configurada para esta liga')
         return
     print('Descargando próximos partidos...')
-    fixtures = obtener_proximos_partidos(url_fix)
+    fixtures = timba_core.obtener_proximos_partidos(url_fix)
     if not fixtures:
         print('No se encontraron próximos partidos (o error al descargar fixtures)')
         return
@@ -152,7 +157,7 @@ def analizar_proxima_fecha_liga(id_liga):
         if not ok_local or not ok_visita:
             print(f"No se pudo emparejar: {local_raw} vs {visita_raw}")
             continue
-        pred = predecir_partido(local_match, visita_match, fuerzas, media_local, media_visitante)
+        pred = timba_core.predecir_partido(local_match, visita_match, fuerzas, media_local, media_visitante)
         if not pred:
             print('No se pudo predecir para:', local_match, visita_match)
             continue
@@ -179,7 +184,7 @@ def predict_manual(id_liga):
     if not ok or df is None:
         print('⚠️ No se encontraron estadísticas históricas para esta competición. No puedes hacer predicciones manuales.')
         return
-    fuerzas, media_local, media_visitante = calcular_fuerzas(df)
+    fuerzas, media_local, media_visitante = timba_core.calcular_fuerzas(df)
     equipos = list(fuerzas.keys())
     print('Equipos detectados en datos:', len(equipos))
     local = input('Equipo local: ').strip()
@@ -200,7 +205,7 @@ def predict_manual(id_liga):
         else:
             print('Equipo visitante no encontrado')
             return
-    pred = predecir_partido(local, visita, fuerzas, media_local, media_visitante)
+    pred = timba_core.predecir_partido(local, visita, fuerzas, media_local, media_visitante)
     if not pred:
         print('No se pudo predecir')
         return
