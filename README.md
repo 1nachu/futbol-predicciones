@@ -26,19 +26,23 @@ proyecto timba/
 │   └── test_sudamerica.py          # Validación de ligas sudamericanas
 │
 ├── 📂 docs/                         # Documentación del proyecto
-│   ├── README.md                   # Documentación principal
-│   ├── TEAM_NORMALIZATION.md       # 🆕 Normalización de equipos (800+ líneas)
-│   ├── API_FOOTBALL_INTEGRATION.md # Integración API-Football v3 (700+ líneas)
-│   ├── LIVE_SCORES_API.md          # Live Scores API (Football-Data.org)
-│   ├── SISTEMA_COMPLETO.md         # Arquitectura y componentes
-│   ├── EXPORTACION_EXCEL.md        # Guía: Exportar reportes
-│   ├── EXPANSION_SUDAMERICANA.md   # Guía: Brasil y Argentina
-│   ├── CAMBIOS_CORNERS.md          # Cambios v2.0
-│   ├── v2.1_RELEASE_NOTES.md       # Release notes v2.1
-│   ├── COMPARACION_ANTES_DESPUES.md# Delta de cambios
-│   ├── RESUMEN_EJECUTIVO.md        # Resumen para stakeholders
-│   ├── QUICK_REFERENCE.md          # Guía rápida
-│   └── LIMPIEZA_PROYECTO.md        # Histórico de limpieza
+│   ├── INDEX.md                    # 📖 Índice de documentación
+│   ├── QUICK_REFERENCE.md          # ⚡ Referencia rápida
+│   ├── SISTEMA_COMPLETO.md         # 🏗️ Arquitectura y componentes
+│   ├── TEAM_NORMALIZATION.md       # 🎯 Normalización de equipos
+│   ├── API_FOOTBALL_INTEGRATION.md # 🌐 Integración API-Football v3
+│   ├── LIVE_SCORES_GUIDE.md        # ⚽ Marcadores en vivo
+│   ├── ETL_FOOTBALL_DATA_GUIDE.md  # 💾 Pipeline ETL
+│   ├── EXPORTACION_EXCEL.md        # 📊 Exportación de reportes
+│   ├── EXPANSION_SUDAMERICANA.md   # 🌎 Brasil y Argentina
+│   ├── v2.1_RELEASE_NOTES.md       # 📝 Cambios v2.1
+│   ├── RESUMEN_EJECUTIVO.md        # 📈 Resumen ejecutivo
+│   ├── _legacy/                    # 📚 Documentación histórica
+│   │   ├── CAMBIOS_CORNERS.md
+│   │   ├── COMPARACION_ANTES_DESPUES.md
+│   │   ├── LIMPIEZA_PROYECTO.md
+│   │   └── [archivos deprecated]
+│   └── 
 │
 ├── 📂 scripts/                      # Scripts auxiliares
 │   ├── run_streamlit.py            # Lanzar app web
@@ -200,12 +204,17 @@ python ../tests/test_sudamerica.py   # Validar Brasil/Argentina
 
 ## 📚 Documentación
 
-Consulta la carpeta `docs/` para:
-- **README.md**: Guía completa de uso
-- **SISTEMA_COMPLETO.md**: Arquitectura técnica
-- **EXPORTACION_EXCEL.md**: Cómo usar exportación
-- **EXPANSION_SUDAMERICANA.md**: Detalles Brasil/Argentina
-- **QUICK_REFERENCE.md**: Referencia rápida
+La documentación completa está en la carpeta `docs/`. Para empezar:
+
+1. **[docs/INDEX.md](docs/INDEX.md)** - Índice de toda la documentación
+2. **[docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md)** - Referencia rápida
+3. **[docs/SISTEMA_COMPLETO.md](docs/SISTEMA_COMPLETO.md)** - Arquitectura técnica
+
+Documentación específica por módulo:
+- **[docs/TEAM_NORMALIZATION.md](docs/TEAM_NORMALIZATION.md)** - Sistema de normalización
+- **[docs/API_FOOTBALL_INTEGRATION.md](docs/API_FOOTBALL_INTEGRATION.md)** - API-Football v3
+- **[docs/LIVE_SCORES_GUIDE.md](docs/LIVE_SCORES_GUIDE.md)** - Marcadores en vivo
+- **[docs/ETL_FOOTBALL_DATA_GUIDE.md](docs/ETL_FOOTBALL_DATA_GUIDE.md)** - Pipeline ETL
 
 ---
 
