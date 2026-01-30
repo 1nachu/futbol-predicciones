@@ -441,3 +441,74 @@ def obtener_h2h(local, visitante, df):
     except:
         pass
     return h2h
+
+
+def obtener_proximos_partidos(fixture_url):
+    """
+    Obtiene los próximos partidos desde una URL de fixtures.
+    Retorna lista de dicts con 'local', 'visitante', 'fecha'.
+    """
+    partidos = []
+    try:
+        # Intentar descargar el fixture
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        r = requests.get(fixture_url, headers=headers, timeout=15)
+        r.raise_for_status()
+        
+        # Parsear como CSV
+        txt = r.content.decode('utf-8', errors='ignore')
+        df = pd.read_csv(io.StringIO(txt))
+        
+        # Normalizar nombres de columnas
+        df.columns = df.columns.str.strip()
+        
+        # Buscar columnas de equipos y fecha
+        col_local = None
+        col_visita = None
+        col_fecha = None
+        
+        for col in df.columns:
+            col_lower = col.lower()
+            if 'home' in col_lower or 'local' in col_lower:
+                col_local = col
+            elif 'away' in col_lower or 'visitante' in col_lower or 'away_team' in col_lower:
+                col_visita = col
+            elif 'date' in col_lower or 'fecha' in col_lower:
+                col_fecha = col
+        
+        if not col_local or not col_visita:
+            return []
+        
+        # Filtrar futuros (si hay fecha)
+        ahora = datetime.now()
+        ahora_plus_7 = ahora + timedelta(days=7)
+        
+        for _, fila in df.iterrows():
+            try:
+                local = str(fila[col_local]).strip() if col_local else ''
+                visita = str(fila[col_visita]).strip() if col_visita else ''
+                
+                if not local or not visita or local == 'nan' or visita == 'nan':
+                    continue
+                
+                # Intentar obtener fecha
+                fecha = 'Próximo'
+                if col_fecha:
+                    try:
+                        fecha_dt = pd.to_datetime(fila[col_fecha])
+                        if fecha_dt > ahora and fecha_dt < ahora_plus_7:
+                            fecha = fecha_dt.strftime('%Y-%m-%d')
+                            partidos.append({'local': local, 'visitante': visita, 'fecha': fecha})
+                    except:
+                        partidos.append({'local': local, 'visitante': visita, 'fecha': fecha})
+                else:
+                    partidos.append({'local': local, 'visitante': visita, 'fecha': fecha})
+                    
+            except Exception:
+                continue
+        
+        return partidos[:20]  # Limitar a 20 partidos máximo
+        
+    except Exception as e:
+        print(f"⚠️  Error descargando fixtures: {e}")
+        return []

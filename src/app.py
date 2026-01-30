@@ -11,7 +11,17 @@ import numpy as np
 from difflib import get_close_matches
 from datetime import datetime, timedelta
 import json
+from tabulate import tabulate
 from timba_core import LIGAS, URLS_FIXTURE, normalizar_csv, calcular_fuerzas, predecir_partido, obtener_h2h, obtener_proximos_partidos, emparejar_equipo, encontrar_equipo_similar, descargar_csv_safe
+
+# ========== IMPORTAR TEAM NORMALIZATION ==========
+try:
+    from team_normalization import TeamNormalizer
+    normalizer = TeamNormalizer()
+    TEAM_NORMALIZATION_AVAILABLE = True
+except Exception as e:
+    normalizer = None
+    TEAM_NORMALIZATION_AVAILABLE = False
 
 # ========== CONFIGURACIÓN INICIAL ==========
 st.set_page_config(
@@ -171,8 +181,11 @@ def main():
     
     st.sidebar.success(f"✅ {len(equipos_validos)} equipos cargados")
     
-    # ========== TABS: Predicción Manual y Automática ==========
-    tab1, tab2 = st.tabs(["🔮 Predicción Manual", "🤖 Próxima Fecha Automática"])
+    # ========== TABS: Predicción Manual, Automática y Team Management ==========
+    if TEAM_NORMALIZATION_AVAILABLE:
+        tab1, tab2, tab3 = st.tabs(["🔮 Predicción Manual", "🤖 Próxima Fecha Automática", "🎯 Gestión de Equipos"])
+    else:
+        tab1, tab2 = st.tabs(["🔮 Predicción Manual", "🤖 Próxima Fecha Automática"])
     
     # ========== TAB 1: PREDICCIÓN MANUAL ==========
     with tab1:
@@ -328,7 +341,177 @@ def main():
                         
                         st.success(f"✅ {len(datos_para_excel)} predicciones listas para exportar")
 
-def mostrar_prediccion_streamlit(local, visitante, prediccion, fuerzas, df):
+    # ========== TAB 3: GESTIÓN DE EQUIPOS (TEAM NORMALIZATION) ==========
+    if TEAM_NORMALIZATION_AVAILABLE:
+        with tab3:
+            st.header("🎯 Gestión de Equipos - Sistema de Normalización")
+            st.markdown("---")
+            
+            # Subtabs para diferentes funcionalidades
+            sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
+                "🔍 Normalizar Equipo",
+                "📊 Ver Estadísticas",
+                "📋 Listar Equipos",
+                "➕ Agregar Equipo"
+            ])
+            
+            # ========== SUBTAB 1: Normalizar Equipo ==========
+            with sub_tab1:
+                st.subheader("🔍 Normalizar Nombre de Equipo")
+                st.write("Ingresa un nombre de equipo para normalizarlo y ver los mapeos disponibles.")
+                
+                nombre_equipo = st.text_input("Nombre del equipo:", placeholder="Ej: River Plate, Boca, Manchester...")
+                
+                if nombre_equipo:
+                    try:
+                        resultado = normalizer.normalizar_nombre_equipo(nombre_equipo)
+                        
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.metric("Equipo Oficial", resultado['official_name'])
+                            st.metric("UUID", resultado['team_uuid'][:12] + "...")
+                            st.metric("Confianza", f"{resultado['confidence']:.1%}")
+                        
+                        with col2:
+                            st.metric("País", resultado['country'])
+                            st.metric("Liga", resultado['league'] or "No especificada")
+                            if resultado.get('is_alias'):
+                                st.info(f"📌 Alias utilizado: {resultado['alias']}")
+                        
+                        # Mostrar mapeos externos
+                        external_mappings = resultado.get('external_mappings', [])
+                        if external_mappings:
+                            st.subheader("🔗 Mapeos Externos")
+                            mapping_data = []
+                            for mapping in external_mappings:
+                                mapping_data.append({
+                                    'Fuente': mapping['source'],
+                                    'ID Externo': mapping['external_id'],
+                                    'Similitud': f"{mapping['similarity_score']:.1%}"
+                                })
+                            st.dataframe(pd.DataFrame(mapping_data), use_container_width=True)
+                        else:
+                            st.info("No hay mapeos externos registrados para este equipo.")
+                        
+                    except Exception as e:
+                        st.error(f"❌ Error al normalizar: {e}")
+            
+            # ========== SUBTAB 2: Ver Estadísticas ==========
+            with sub_tab2:
+                st.subheader("📊 Estadísticas del Sistema")
+                
+                try:
+                    stats = normalizer.get_statistics()
+                    
+                    # Métricas principales
+                    col1, col2, col3, col4 = st.columns(4)
+                    col1.metric("Equipos Únicos", stats['total_teams'])
+                    col2.metric("Mapeos Externos", stats['total_mappings'])
+                    col3.metric("Aliases", stats['total_aliases'])
+                    col4.metric("Mapeos Automáticos", stats['automatic_mappings'])
+                    
+                    st.divider()
+                    
+                    # Estadísticas de búsqueda
+                    col1, col2, col3 = st.columns(3)
+                    col1.metric("Búsquedas en Caché", stats['cache_hits'])
+                    col2.metric("Búsquedas en BD", stats['db_searches'])
+                    col3.metric("Coincidencias Fuzzy", stats['fuzzy_matches'])
+                    
+                    # Fuentes de datos
+                    if stats['top_sources']:
+                        st.subheader("📊 Fuentes de Datos Principales")
+                        
+                        sources_data = []
+                        for source, count in stats['top_sources'].items():
+                            sources_data.append({'Fuente': source, 'Mapeos': count})
+                        
+                        df_sources = pd.DataFrame(sources_data)
+                        st.bar_chart(df_sources.set_index('Fuente'))
+                    
+                except Exception as e:
+                    st.error(f"❌ Error al obtener estadísticas: {e}")
+            
+            # ========== SUBTAB 3: Listar Equipos ==========
+            with sub_tab3:
+                st.subheader("📋 Tabla Maestra de Equipos")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    filtro_pais = st.text_input("Filtrar por país (opcional):", placeholder="Ej: AR, BR, MX")
+                with col2:
+                    if st.button("🔄 Actualizar Lista", use_container_width=True):
+                        st.rerun()
+                
+                try:
+                    equipos = normalizer.list_all_teams(
+                        country_filter=filtro_pais.upper() if filtro_pais else None
+                    )
+                    
+                    if equipos:
+                        # Preparar tabla
+                        tabla_data = []
+                        for eq in equipos:
+                            tabla_data.append({
+                                'UUID (corto)': eq['team_uuid'][:8],
+                                'Nombre Oficial': eq['official_name'],
+                                'País': eq['country'],
+                                'Liga': eq['league'] or '-',
+                                'Aliases': len(eq.get('aliases', [])),
+                                'Mapeos': len(eq.get('external_mappings', []))
+                            })
+                        
+                        df_equipos = pd.DataFrame(tabla_data)
+                        st.dataframe(df_equipos, use_container_width=True)
+                        st.info(f"✅ Total: {len(equipos)} equipos")
+                    else:
+                        st.warning("No hay equipos que coincidan con el filtro.")
+                    
+                except Exception as e:
+                    st.error(f"❌ Error al listar equipos: {e}")
+            
+            # ========== SUBTAB 4: Agregar Equipo ==========
+            with sub_tab4:
+                st.subheader("➕ Agregar Nuevo Equipo a Tabla Maestra")
+                st.write("Agrega un nuevo equipo a la tabla maestra centralizada.")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    nombre_oficial = st.text_input("Nombre oficial del equipo:")
+                
+                with col2:
+                    pais = st.selectbox(
+                        "País:",
+                        options=['AR', 'BR', 'MX', 'US', 'ES', 'IT', 'FR', 'DE', 'PT', 'NL', 'BE', 'CH', 'AT', 'SE', 'NO', 'DK', 'TR', 'RU', 'UA', 'PL'],
+                        key="pais_selector"
+                    )
+                
+                with col3:
+                    liga = st.text_input("Liga (opcional):", placeholder="Ej: Liga 1, Premier League...")
+                
+                if st.button("✅ Agregar Equipo", use_container_width=True):
+                    if nombre_oficial and pais:
+                        try:
+                            equipo = normalizer.add_master_team(
+                                official_name=nombre_oficial,
+                                country=pais,
+                                league=liga if liga else None
+                            )
+                            st.success(f"✅ Equipo agregado exitosamente")
+                            st.json({
+                                'UUID': equipo['team_uuid'],
+                                'Nombre': equipo['official_name'],
+                                'País': equipo['country'],
+                                'Liga': equipo['league']
+                            })
+                        except Exception as e:
+                            st.error(f"❌ Error al agregar equipo: {e}")
+                    else:
+                        st.warning("⚠️ Nombre oficial y país son obligatorios.")
+
+
     """
     Muestra la predicción en componentes Streamlit (tabs, métricas, gráficos).
     """
