@@ -725,5 +725,9 @@ def main():
     
     st.info("💡 **Nota:** Ponderación 60% FORMA RECIENTE + 40% ESTADÍSTICAS GLOBALES")
 
-if __name__ == "__main__":
-    main()
+
+def mostrar_prediccion_streamlit(local, visitante, prediccion, fuerzas, df):
+    """
+    Muestra la predicción en componentes Streamlit (tabs, métricas, gráficos).
+    """
+    # ========== SECCIÓN 1: PROBABILIDADES ==========
