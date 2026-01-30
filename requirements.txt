@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+scipy
+requests
+openpyxl
+streamlit
+pandas
+numpy
+scipy
+requests
+openpyxl
