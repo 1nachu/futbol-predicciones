@@ -20,12 +20,18 @@ import os
 import sys
 import logging
 import pandas as pd
+import numpy as np
 import requests
 from datetime import datetime, timedelta
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 import time
 from urllib.parse import urljoin
+
+try:
+    import sqlalchemy
+except ImportError:
+    sqlalchemy = None
 
 # ========== CONFIGURACIÓN DE LOGGING ==========
 logging.basicConfig(
@@ -367,7 +373,8 @@ class FootballDataLoader:
     def _crear_engine_sqlite(self):
         """Crea engine de SQLite"""
         try:
-            import sqlalchemy
+            if sqlalchemy is None:
+                raise ImportError("sqlalchemy no está instalado")
             return sqlalchemy.create_engine(self.connection_string)
         except Exception as e:
             logger.error(f"Error creando engine SQLite: {str(e)}")
@@ -376,7 +383,8 @@ class FootballDataLoader:
     def _crear_engine_postgresql(self):
         """Crea engine de PostgreSQL"""
         try:
-            import sqlalchemy
+            if sqlalchemy is None:
+                raise ImportError("sqlalchemy no está instalado")
             return sqlalchemy.create_engine(self.connection_string)
         except Exception as e:
             logger.error(f"Error creando engine PostgreSQL: {str(e)}")
