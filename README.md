@@ -8,7 +8,17 @@ proyecto timba/
 ├── 📂 src/                          # Código fuente principal
 │   ├── timba_core.py               # Motor de predicciones (Poisson, cálculos)
 │   ├── app.py                      # Interfaz web (Streamlit)
-│   └── cli.py                      # Interfaz CLI (línea de comandos)
+│   ├── cli.py                      # Interfaz CLI (línea de comandos)
+│   ├── team_normalization.py       # 🆕 Normalización de equipos (UUID)
+│   ├── etl_team_integration.py     # 🆕 Integración ETL multi-fuente
+│   ├── team_normalization_cli.py   # 🆕 CLI para normalización (14 comandos)
+│   ├── etl_football_data.py        # ETL: Football-Data.co.uk
+│   ├── etl_cli.py                  # CLI: ETL
+│   ├── football_api_client.py      # Cliente: Football-Data.org (Live Scores)
+│   ├── live_scores.py              # Gestor: Scores en tiempo real
+│   ├── api_football_enricher.py    # Enriquecedor: API-Football v3
+│   ├── api_football_scheduler.py   # Scheduler: Batch + Predicciones
+│   └── api_football_etl_integration.py  # Integración: API-Football ↔ ETL
 │
 ├── 📂 tests/                        # Suite de pruebas
 │   ├── test_corners.py             # Validación de mercados de córners
@@ -17,6 +27,9 @@ proyecto timba/
 │
 ├── 📂 docs/                         # Documentación del proyecto
 │   ├── README.md                   # Documentación principal
+│   ├── TEAM_NORMALIZATION.md       # 🆕 Normalización de equipos (800+ líneas)
+│   ├── API_FOOTBALL_INTEGRATION.md # Integración API-Football v3 (700+ líneas)
+│   ├── LIVE_SCORES_API.md          # Live Scores API (Football-Data.org)
 │   ├── SISTEMA_COMPLETO.md         # Arquitectura y componentes
 │   ├── EXPORTACION_EXCEL.md        # Guía: Exportar reportes
 │   ├── EXPANSION_SUDAMERICANA.md   # Guía: Brasil y Argentina

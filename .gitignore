@@ -9,6 +9,13 @@ venv/
 ENV/
 .venv/
 
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+timba.db
+team_normalization.db
+
 # IDE
 .vscode/
 .idea/
@@ -24,16 +31,23 @@ ENV/
 .Trashes
 ehthumbs.db
 
-# Logs
+# Logs & Config
 *.log
 logs/
+.env
+.env.local
+config/.env
 
 # Cache
 .pytest_cache/
 .coverage
 htmlcov/
+data/cache/
+.streamlit/
 
 # Temporal
 *.tmp
 *.temp
 *.xlsx
+tmp/
+temp/
